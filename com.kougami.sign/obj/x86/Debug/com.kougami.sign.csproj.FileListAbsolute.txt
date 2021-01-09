@@ -1,0 +1,13 @@
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\com.kougami.sign.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\com.kougami.sign.pdb
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\QQMini.PluginSDK.Core.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\QQMini.PluginSDK.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Microsoft.Build.Utilities.Core.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Microsoft.Build.Framework.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\QQMini.PluginSDK.Core.xml
+E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csproj.CoreCompileInputs.cache
+E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csproj.CopyComplete
+E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.pdb
+C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.dll
+C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.pdb
