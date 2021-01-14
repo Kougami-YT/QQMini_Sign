@@ -28,12 +28,12 @@ namespace com.kougami.sign
             timer.Interval = 600000; //间隔10分钟
             timer.Start();
             timer.Elapsed += new ElapsedEventHandler(Event_Timer);
-            QMLog.CurrentApi.Debug("监控开启");
         }
 
         private static void Event_Timer(object source, ElapsedEventArgs e)
         {
-            QMLog.CurrentApi.Debug("检测是否签到......");
+            if (!Program.enable) return;
+            QMLog.CurrentApi.Debug("检测原神是否签到......");
             string[] member = Config.Get("genshin.ini", "all", "member").Split(',');
             foreach (string i in member)
             {
@@ -46,20 +46,16 @@ namespace com.kougami.sign
                     SignInfo signinfo = Get_SignInfo(j, uid);
                     if (signinfo.data.is_sign) continue;
                     string result = "";
-                    Response_Sign info = Sign(j, uid);
-                    if (info.retcode == -5003)
-                    {
-                        result = "UID[" + role.data.list[0].game_uid + "]今日已签到";
-                    }
-                    else if (info.retcode != 0)
+                    Response_Genshin_Sign info = Sign(j, uid);
+                    if (info.retcode != 0)
                     {
                         result = "签到失败！\n错误代码：" + info.retcode + "\n错误提示：" + info.message;
                     }
                     else
                     {
-                        result += "UID[" + role.data.list[0].game_uid + "]签到成功";
+                        result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + " 签到成功";
                         signinfo = Get_SignInfo(j, uid);
-                        result += "\n累计签到 " + signinfo.data.total_sign_day + "天";
+                        result += "\n累计签到 " + signinfo.data.total_sign_day + " 天";
                         Award award = Get_Award(j);
                         result += "\n今日奖励：" + award.data.awards[signinfo.data.total_sign_day - 1].name + "×" + award.data.awards[signinfo.data.total_sign_day - 1].cnt;
                     }
@@ -81,19 +77,19 @@ namespace com.kougami.sign
             Role role = Get_Role(cookie);
             string uid = role.data.list[0].game_uid;
 
-            Response_Sign info = Sign(cookie, uid);
+            Response_Genshin_Sign info = Sign(cookie, uid);
             if (info.retcode == -5003)
             {
-                return "UID[" + role.data.list[0].game_uid + "]今日已签到";
+                return "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + " 今日已签到";
             }
             else if (info.retcode != 0)
             {
                 return "签到失败！\n错误代码：" + info.retcode + "\n错误提示：" + info.message;
             }
-            result += "UID[" + role.data.list[0].game_uid + "]签到成功";
+            result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + " 签到成功";
 
             SignInfo signinfo = Get_SignInfo(cookie, uid);
-            result += "\n累计签到 " + signinfo.data.total_sign_day + "天";
+            result += "\n累计签到 " + signinfo.data.total_sign_day + " 天";
 
             Award award = Get_Award(cookie);
             result += "\n今日奖励：" + award.data.awards[signinfo.data.total_sign_day - 1].name + "×" + award.data.awards[signinfo.data.total_sign_day - 1].cnt;
@@ -123,7 +119,7 @@ namespace com.kougami.sign
         }
 
 
-        public static Response_Sign Sign(string cookie, string uid)
+        public static Response_Genshin_Sign Sign(string cookie, string uid)
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("UserAgent", "Mozilla/5.0 (Linux; Android 6.0.1; MuMu Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 miHoYoBBS/2.4.0");
@@ -133,11 +129,8 @@ namespace com.kougami.sign
             header.Add("x-rpc-app_version", "2.2.1");
             header.Add("DS", Get_DS());
             header.Add("Cookie", cookie);
-            Body_Sign body = new Body_Sign();
-            body.act_id = "e202009291139501";
-            body.region = "cn_gf01";
-            body.uid = uid;
-            return JsonConvert.DeserializeObject<Response_Sign>(HTTP_POST(url_sign, body, header));
+            Body_Genshin_Sign body = new Body_Genshin_Sign("e202009291139501", "cn_gf01", uid);
+            return JsonConvert.DeserializeObject<Response_Genshin_Sign>(HTTP_POST(url_sign, body, header));
         }
 
         static string Get_DS()
@@ -276,18 +269,24 @@ namespace com.kougami.sign
 
     #region 签到请求body
 
-    public class Body_Sign
+    public class Body_Genshin_Sign
     {
         public string act_id { get; set; }
         public string region { get; set; }
         public string uid { get; set; }
+        public Body_Genshin_Sign(string act_id, string region, string uid)
+        {
+            this.act_id = act_id;
+            this.region = region;
+            this.uid = uid;
+        }
     }
 
     #endregion
 
     #region 签到实体类
 
-    public class Response_Sign
+    public class Response_Genshin_Sign
     {
         public int retcode { get; set; }
         public string message { get; set; }

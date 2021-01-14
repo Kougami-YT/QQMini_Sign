@@ -7,7 +7,7 @@ namespace com.kougami.sign
 {
     public class Program : PluginBase
     {
-        public bool enable = false;
+        public static bool enable = false;
         public override PluginInfo PluginInfo
         {
             get
@@ -31,8 +31,9 @@ namespace com.kougami.sign
             if (Config.Get("config.ini", "all", "robot", "") != "")
             {
                 enable = true;
-                Genshin.Start();
             }
+            Genshin.Start();
+            Tieba.Start();
         }
 
         /// <summary>
@@ -46,14 +47,12 @@ namespace com.kougami.sign
             if (e.Message.Text == "启动" && !enable)
             {
                 Config.Set("config.ini", "all", "robot", e.RobotQQ.Id.ToString());
-                Genshin.Start();
                 enable = true;
                 QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, "启动成功");
             }
             if (e.Message.Text == "关闭" && enable)
             {
                 Config.Set("config.ini", "all", "robot", "");
-                Genshin.timer.Stop();
                 enable = false;
                 QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, "关闭成功");
             }
@@ -80,37 +79,73 @@ namespace com.kougami.sign
         public override QMEventHandlerTypes OnReceiveFriendMessage(QMPrivateMessageEventArgs e)
         {
             if (!enable) return QMEventHandlerTypes.Continue;
+
             if (e.Message.Text == "原神签到")
             {
                 QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息（多账号可用 # 分割Cookie）\n输入none清除已录入数据");
                 Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "true");
             }
-            else if (Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false") == "true" && e.Message.Text == "none")
-            {
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false");
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", "");
-                Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
-                QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "清除成功");
-            }
             else if (Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false") == "true")
             {
                 Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false");
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
-                if (!Config.Get("genshin.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("genshin.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
-                QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
-                try
+                if (e.Message.Text == "none")
                 {
-                    string[] cookie = Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "cookie").Split('#');
-                    foreach (string i in cookie)
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", "");
+                    Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
+                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "清除成功");
+                }
+                else
+                {
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
+                    if (!Config.Get("genshin.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("genshin.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
+                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
+                    try
                     {
-                        QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, Genshin.Run(i));
+                        string[] cookie = Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "cookie").Split('#');
+                        foreach (string i in cookie)
+                        {
+                            QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, Genshin.Run(i));
+                        }
+                    }
+                    catch
+                    {
+                        QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "发生未知错误，请联系物理管理员");
                     }
                 }
-                catch
+            }
+            else if (e.Message.Text == "贴吧签到")
+            {
+                QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息\n输入none清除已录入数据");
+                Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "writing", "true");
+            }
+            else if (Config.Get("tieba.ini", e.FromQQ.Id.ToString(), "writing", "false") == "true")
+            {
+                Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "writing", "false");
+                if (e.Message.Text == "none")
                 {
-                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "发生未知错误，请联系物理管理员");
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "cookie", "");
+                    Config.Set("tieba.ini", "all", "member", Config.Get("tieba.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
+                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "清除成功");
+                }
+                else
+                {
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
+                    if (!Config.Get("tieba.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("tieba.ini", "all", "member", Config.Get("tieba.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("tieba.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
+                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
+                    //try
+                    {
+                        string cookie = e.Message.Text;
+                        string result = Tieba.Run(cookie);
+                        QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, result);
+                        if (result.Contains("失败")) QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "将于 10 分钟内重试");
+                    }
+                    //catch
+                    {
+                        //QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "发生未知错误，请联系物理管理员");
+                    }
                 }
             }
+
             return QMEventHandlerTypes.Intercept;
         }
 
@@ -122,37 +157,77 @@ namespace com.kougami.sign
         public override QMEventHandlerTypes OnReceiveGroupTempMessage(QMGroupPrivateMessageEventArgs e)
         {
             if (!enable) return QMEventHandlerTypes.Continue;
+
             if (e.Message.Text == "原神签到")
             {
                 QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息（多账号可用 # 分割Cookie）\n输入none清除已录入数据");
                 Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "true");
             }
-            else if (e.Message.Text == "none")
-            {
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false");
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", "");
-                Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
-            }
             else if (Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false") == "true")
             {
                 Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "writing", "false");
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
-                Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "group", e.FromGroup.ToString());
-                if (!Config.Get("genshin.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("genshin.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
-                QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
-                try
+                if (e.Message.Text == "none")
                 {
-                    string[] cookie = Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "cookie").Split('#');
-                    foreach (string i in cookie)
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", "");
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "group", "");
+                    Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
+                    QMApi.SendFriendMessage(e.RobotQQ, e.FromQQ, "清除成功");
+                }
+                else
+                {
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
+                    Config.Set("genshin.ini", e.FromQQ.Id.ToString(), "group", e.FromGroup.Id.ToString());
+                    if (!Config.Get("genshin.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("genshin.ini", "all", "member", Config.Get("genshin.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("genshin.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
+                    QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
+                    try
                     {
-                        QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, Genshin.Run(i));
+                        string[] cookie = Config.Get("genshin.ini", e.FromQQ.Id.ToString(), "cookie").Split('#');
+                        foreach (string i in cookie)
+                        {
+                            QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, Genshin.Run(i));
+                        }
+                    }
+                    catch
+                    {
+                        QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "发生未知错误，请联系物理管理员");
                     }
                 }
-                catch
+            }
+            else if (e.Message.Text == "贴吧签到")
+            {
+                QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息\n输入none清除已录入数据");
+                Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "writing", "true");
+            }
+            else if (Config.Get("tieba.ini", e.FromQQ.Id.ToString(), "writing", "false") == "true")
+            {
+                Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "writing", "false");
+                if (e.Message.Text == "none")
                 {
-                    QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "发生未知错误，请联系物理管理员");
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "cookie", "");
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "group", "");
+                    Config.Set("tieba.ini", "all", "member", Config.Get("tieba.ini", "all", "member").Replace("," + e.FromQQ.Id.ToString(), "").Replace(e.FromQQ.Id.ToString(), ""));
+                    QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "清除成功");
+                }
+                else
+                {
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "cookie", e.Message.Text);
+                    Config.Set("tieba.ini", e.FromQQ.Id.ToString(), "group", e.FromGroup.Id.ToString());
+                    if (!Config.Get("tieba.ini", "all", "member").Contains(e.FromQQ.Id.ToString())) Config.Set("tieba.ini", "all", "member", Config.Get("tieba.ini", "all", "member", "") == "" ? e.FromQQ.Id.ToString() : Config.Get("tieba.ini", "all", "member") + "," + e.FromQQ.Id.ToString());
+                    QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
+                    try
+                    {
+                        string cookie = Config.Get("tieba.ini", e.FromQQ.Id.ToString(), "cookie");
+                        string result = Tieba.Run(cookie);
+                        QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, result);
+                        if (result.Contains("失败")) QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "将于 10 分钟内重试");
+                    }
+                    catch
+                    {
+                        QMApi.SendGroupTempMessage(e.RobotQQ, e.FromGroup, e.FromQQ, "发生未知错误，请联系物理管理员");
+                    }
                 }
             }
+
             return QMEventHandlerTypes.Intercept;
         }
 
