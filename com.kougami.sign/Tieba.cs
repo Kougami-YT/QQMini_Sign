@@ -29,12 +29,12 @@ namespace com.kougami.sign
         private static void Event_Timer(object source, ElapsedEventArgs e)
         {
             if (!Program.enable) return;
-            QMLog.CurrentApi.Debug("检测贴吧是否签到......");
             string[] member = Config.Get("tieba.ini", "all", "member").Split(',');
             foreach (string i in member)
             {
                 string cookie = Config.Get("tieba.ini", i, "cookie");
                 string result = Run(cookie);
+                if (!result.Contains("成功") && !result.Contains("失败")) continue;
                 try
                 {
                     QMApi.CurrentApi.SendFriendMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(i), result);
