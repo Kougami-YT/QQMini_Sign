@@ -199,16 +199,16 @@ namespace com.kougami.sign
                     Config.Set("manga.ini", fromQQ.ToString(), "group", fromGroup.ToString());
                     if (!Config.Get("manga.ini", "all", "member").Contains(fromQQ.ToString())) Config.Set("manga.ini", "all", "member", Config.Get("manga.ini", "all", "member", "") == "" ? fromQQ.ToString() : Config.Get("manga.ini", "all", "member") + "," + fromQQ.ToString());
                     SendPrivateMessage(robotQQ, fromGroup, fromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
-                    //try
+                    try
                     {
                         string cookie = Config.Get("manga.ini", fromQQ.ToString(), "cookie");
                         string result = Manga.Run(cookie);
                         SendPrivateMessage(robotQQ, fromGroup, fromQQ, result);
                         if (result.Contains("失败")) SendPrivateMessage(robotQQ, fromGroup, fromQQ, "将于 10 分钟内重试");
                     }
-                    //catch
+                    catch
                     {
-                        //SendPrivateMessage(robotQQ, fromGroup, fromQQ, "发生未知错误，请联系物理管理员");
+                        SendPrivateMessage(robotQQ, fromGroup, fromQQ, "发生未知错误，请联系物理管理员");
                     }
                 }
             }

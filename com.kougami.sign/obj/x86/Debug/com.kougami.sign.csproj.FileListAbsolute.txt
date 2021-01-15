@@ -13,3 +13,8 @@ C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.dll
 C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.pdb
 E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.Setting.resources
 E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csproj.GenerateResource.cache
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Newtonsoft.Json.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\RestSharp.dll
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Newtonsoft.Json.xml
+E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\RestSharp.xml
+E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csprojAssemblyReference.cache
