@@ -59,11 +59,11 @@ namespace com.kougami.sign
                         Award award = Get_Award(j);
                         result += "\n今日奖励：" + award.data.awards[signinfo.data.total_sign_day - 1].name + "×" + award.data.awards[signinfo.data.total_sign_day - 1].cnt;
                     }
-                    try
+                    if (Config.Get("genshin.ini", i, "group", "-1") == "-1")
                     {
                         QMApi.CurrentApi.SendFriendMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(i), result);
                     }
-                    catch
+                    else
                     {
                         QMApi.CurrentApi.SendGroupTempMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(Config.Get("genshin.ini", i, "group")), long.Parse(i), result);
                     }

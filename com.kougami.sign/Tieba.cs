@@ -29,18 +29,19 @@ namespace com.kougami.sign
         private static void Event_Timer(object source, ElapsedEventArgs e)
         {
             if (!Program.enable) return;
+            QMLog.CurrentApi.Debug("检测贴吧是否签到......");
             string[] member = Config.Get("tieba.ini", "all", "member").Split(',');
             foreach (string i in member)
             {
                 string cookie = Config.Get("tieba.ini", i, "cookie");
                 string result = Run(cookie);
                 if (!result.Contains("成功") && !result.Contains("失败")) continue;
-                try
+                if (Config.Get("tieba.ini", i, "group", "-1") == "-1")
                 {
                     QMApi.CurrentApi.SendFriendMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(i), result);
                     if (result.Contains("失败")) QMApi.CurrentApi.SendFriendMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(i), "将于 10 分钟后重试");
                 }
-                catch
+                else
                 {
                     QMApi.CurrentApi.SendGroupTempMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(Config.Get("tieba.ini", i, "group")), long.Parse(i), result);
                     if (result.Contains("失败")) QMApi.CurrentApi.SendGroupTempMessage(long.Parse(Config.Get("config.ini", "all", "robot")), long.Parse(Config.Get("tieba.ini", i, "group")), long.Parse(i), "将于 10 分钟后重试");

@@ -11,4 +11,3 @@ E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.d
 E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.pdb
 C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.dll
 C:\Users\Wither\Desktop\QMB Project\QMB Pro\app\com.kougami.sign.pdb
-E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csprojAssemblyReference.cache
