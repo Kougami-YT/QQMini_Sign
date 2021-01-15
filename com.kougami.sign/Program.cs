@@ -250,5 +250,10 @@ namespace com.kougami.sign
             return result;
         }
 
+        public override void OnOpenSettingMenu()
+        {
+            Setting form = new Setting();
+            form.Show();
+        }
     }
 }
