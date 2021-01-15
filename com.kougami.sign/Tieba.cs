@@ -84,7 +84,7 @@ namespace com.kougami.sign
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Cookie", cookie);
-            return JsonConvert.DeserializeObject<Tieba_Info>(HTTP_GET(url_list, header));
+            return JsonConvert.DeserializeObject<Tieba_Info>(HTTP.GET(url_list, header));
         }
 
         public static Response_Tieba_Sign Sign(string cookie, string name)
@@ -95,14 +95,14 @@ namespace com.kougami.sign
             body.Add("ie", "utf-8");
             body.Add("kw", name);
             body.Add("tbs", Get_tbs(cookie));
-            return JsonConvert.DeserializeObject<Response_Tieba_Sign>(HTTP_POST(url_sign, body, header, 1));
+            return JsonConvert.DeserializeObject<Response_Tieba_Sign>(HTTP.POST(url_sign, body, header, 1));
         }
 
         public static string Get_tbs(string cookie)
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Cookie", cookie);
-            return JsonConvert.DeserializeObject<Response_Tbs>(HTTP_GET(url_tbs, header)).tbs;
+            return JsonConvert.DeserializeObject<Response_Tbs>(HTTP.GET(url_tbs, header)).tbs;
         }
 
         /// <summary>
@@ -133,112 +133,6 @@ namespace com.kougami.sign
             return result;
         }
 
-        /// <summary>
-        /// 发送GET请求 带请求头
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="header"></param>
-        /// <returns></returns>
-        public static string HTTP_GET(string url, Dictionary<string, string> header = null)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            foreach (KeyValuePair<string, string> i in header)
-            {
-                request.Headers[i.Key] = i.Value;
-            }
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader streamReader = new StreamReader(responseStream, Encoding.UTF8);
-            string str = streamReader.ReadToEnd();
-            return str;
-        }
-
-        /// <summary>
-        /// 发送POST请求 带请求头、请求体
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="body"></param>
-        /// <param name="header"></param>
-        /// <param name="datatype"></param>
-        /// <returns></returns>
-        public static string HTTP_POST(string url, Dictionary<string, string> body, Dictionary<string, string> header = null, int datatype = 0)
-        {
-            if (datatype == 0)
-            {
-                string param = JsonConvert.SerializeObject(body);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "POST";
-                request.ContentType = "application/json;charset=UTF-8";
-                if (header != null && header.Count != 0)
-                {
-                    foreach (var item in header)
-                    {
-                        request.Headers.Add(item.Key, item.Value);
-                    }
-                }
-                byte[] payload = Encoding.UTF8.GetBytes(param);
-                request.ContentLength = payload.Length;
-                string strValue = "";
-                try
-                {
-                    Stream writer = request.GetRequestStream();
-                    writer.Write(payload, 0, payload.Length);
-                    writer.Close();
-                    HttpWebResponse response;
-                    response = (HttpWebResponse)request.GetResponse();
-                    Stream s;
-                    s = response.GetResponseStream();
-                    string StrDate = "";
-                    StreamReader Reader = new StreamReader(s, Encoding.UTF8);
-                    while ((StrDate = Reader.ReadLine()) != null)
-                    {
-                        strValue += StrDate;
-                    }
-                }
-                catch (Exception e)
-                {
-                    strValue = e.Message;
-                }
-                return strValue;
-            }
-            else if (datatype == 1)
-            {
-                string PostData = "";
-                foreach (KeyValuePair<string, string> i in body)
-                {
-                    if (PostData != "") PostData += "&";
-                    PostData += i.Key + "=" + i.Value;
-                }
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "POST";
-                request.ContentType = "application/x-www-form-urlencoded;charset=UTF-8";
-                if (header != null && header.Count != 0)
-                {
-                    foreach (var item in header)
-                    {
-                        request.Headers.Add(item.Key, item.Value);
-                    }
-                }
-                byte[] byteArray = Encoding.UTF8.GetBytes(PostData);
-                request.ContentLength = byteArray.Length;
-                using (Stream newStream = request.GetRequestStream())
-                {
-                    newStream.Write(byteArray, 0, byteArray.Length);//写入参数
-                    newStream.Close();
-                }
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                string EndResult = "";
-                Stream rspStream = response.GetResponseStream();
-                using (StreamReader reader = new StreamReader(rspStream, Encoding.UTF8))
-                {
-                    EndResult = reader.ReadToEnd();
-                    rspStream.Close();
-                }
-                response.Close();
-                return EndResult;
-            }
-            return "";
-        }
     }
 
     #region 贴吧信息实体类

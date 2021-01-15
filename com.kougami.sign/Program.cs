@@ -28,13 +28,14 @@ namespace com.kougami.sign
         /// </summary>
         public override void OnInitialize()
         {
-            Config.path = QMApi.CurrentApi.GetPluginDataDirectory();
+            Config.path = QMApi.GetPluginDataDirectory();
             if (Config.Get("config.ini", "all", "robot", "") != "")
             {
                 enable = true;
             }
             Genshin.Start();
             Tieba.Start();
+            Manga.Start();
         }
 
         /// <summary>
@@ -174,6 +175,40 @@ namespace com.kougami.sign
                     catch
                     {
                         SendPrivateMessage(robotQQ, fromGroup, fromQQ, "发生未知错误，请联系物理管理员");
+                    }
+                }
+            }
+            else if (message == "漫画签到")
+            {
+                SendPrivateMessage(robotQQ, fromGroup, fromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息\n输入none清除已录入数据");
+                Config.Set("manga.ini", fromQQ.ToString(), "writing", "true");
+            }
+            else if (Config.Get("manga.ini", fromQQ.ToString(), "writing", "false") == "true")
+            {
+                Config.Set("manga.ini", fromQQ.ToString(), "writing", "false");
+                if (message == "none")
+                {
+                    Config.Set("manga.ini", fromQQ.ToString(), "cookie", "");
+                    Config.Set("manga.ini", fromQQ.ToString(), "group", "");
+                    Config.Set("manga.ini", "all", "member", Config.Get("manga.ini", "all", "member").Replace("," + fromQQ.ToString(), "").Replace(fromQQ.ToString(), ""));
+                    SendPrivateMessage(robotQQ, fromGroup, fromQQ, "清除成功");
+                }
+                else
+                {
+                    Config.Set("manga.ini", fromQQ.ToString(), "cookie", GetPart(message, "SESSDATA", "bili_jct"));
+                    Config.Set("manga.ini", fromQQ.ToString(), "group", fromGroup.ToString());
+                    if (!Config.Get("manga.ini", "all", "member").Contains(fromQQ.ToString())) Config.Set("manga.ini", "all", "member", Config.Get("manga.ini", "all", "member", "") == "" ? fromQQ.ToString() : Config.Get("manga.ini", "all", "member") + "," + fromQQ.ToString());
+                    SendPrivateMessage(robotQQ, fromGroup, fromQQ, "Cookie录入完毕！接下来将进行一次测试签到");
+                    //try
+                    {
+                        string cookie = Config.Get("manga.ini", fromQQ.ToString(), "cookie");
+                        string result = Manga.Run(cookie);
+                        SendPrivateMessage(robotQQ, fromGroup, fromQQ, result);
+                        if (result.Contains("失败")) SendPrivateMessage(robotQQ, fromGroup, fromQQ, "将于 10 分钟内重试");
+                    }
+                    //catch
+                    {
+                        //SendPrivateMessage(robotQQ, fromGroup, fromQQ, "发生未知错误，请联系物理管理员");
                     }
                 }
             }

@@ -81,6 +81,8 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Genshin.cs" />
+    <Compile Include="HTTP.cs" />
+    <Compile Include="Manga.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tieba.cs" />

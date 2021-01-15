@@ -101,21 +101,21 @@ namespace com.kougami.sign
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Cookie", cookie);
-            return JsonConvert.DeserializeObject<Award>(HTTP_GET(url_award, header));
+            return JsonConvert.DeserializeObject<Award>(HTTP.GET(url_award, header));
         }
 
         public static SignInfo Get_SignInfo(string cookie, string uid)
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Cookie", cookie);
-            return JsonConvert.DeserializeObject<SignInfo>(HTTP_GET(url_info + uid, header));
+            return JsonConvert.DeserializeObject<SignInfo>(HTTP.GET(url_info + uid, header));
         }
 
         public static Role Get_Role(string cookie)
         {
             Dictionary<string, string> header = new Dictionary<string, string>();
             header.Add("Cookie", cookie);
-            return JsonConvert.DeserializeObject<Role>(HTTP_GET(url_role, header));
+            return JsonConvert.DeserializeObject<Role>(HTTP.GET(url_role, header));
         }
 
 
@@ -129,8 +129,11 @@ namespace com.kougami.sign
             header.Add("x-rpc-app_version", "2.2.1");
             header.Add("DS", Get_DS());
             header.Add("Cookie", cookie);
-            Body_Genshin_Sign body = new Body_Genshin_Sign("e202009291139501", "cn_gf01", uid);
-            return JsonConvert.DeserializeObject<Response_Genshin_Sign>(HTTP_POST(url_sign, body, header));
+            Dictionary<string, string> body = new Dictionary<string, string>();
+            body.Add("act_id", "e202009291139501");
+            body.Add("region", "cn_gf01");
+            body.Add("uid", uid);
+            return JsonConvert.DeserializeObject<Response_Genshin_Sign>(HTTP.POST(url_sign, body, header));
         }
 
         static string Get_DS()
@@ -198,91 +201,7 @@ namespace com.kougami.sign
             return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
 
-        /// <summary>
-        /// 发送GET请求 带请求头
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="header"></param>
-        /// <returns></returns>
-        public static string HTTP_GET(string url, Dictionary<string, string> header = null)
-        {
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-            foreach (KeyValuePair<string, string> i in header)
-            {
-                request.Headers[i.Key] = i.Value;
-            }
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader streamReader = new StreamReader(responseStream, Encoding.UTF8);
-            string str = streamReader.ReadToEnd();
-            return str;
-        }
-
-        /// <summary>
-        /// 发送POST请求 带请求头、请求体
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="obj_model"></param>
-        /// <param name="dic"></param>
-        /// <returns></returns>
-        public static string HTTP_POST(string url, object obj_model, Dictionary<string, string> dic = null)
-        {
-            string param = JsonConvert.SerializeObject(obj_model);
-            System.Net.HttpWebRequest request;
-            request = (System.Net.HttpWebRequest)WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/json;charset=UTF-8";
-            if (dic != null && dic.Count != 0)
-            {
-                foreach (var item in dic)
-                {
-                    request.Headers.Add(item.Key, item.Value);
-                }
-            }
-            byte[] payload;
-            payload = System.Text.Encoding.UTF8.GetBytes(param);
-            request.ContentLength = payload.Length;
-            string strValue = "";
-            try
-            {
-                Stream writer = request.GetRequestStream();
-                writer.Write(payload, 0, payload.Length);
-                writer.Close();
-                System.Net.HttpWebResponse response;
-                response = (System.Net.HttpWebResponse)request.GetResponse();
-                System.IO.Stream s;
-                s = response.GetResponseStream();
-                string StrDate = "";
-                StreamReader Reader = new StreamReader(s, Encoding.UTF8);
-                while ((StrDate = Reader.ReadLine()) != null)
-                {
-                    strValue += StrDate;
-                }
-            }
-            catch (Exception e)
-            {
-                strValue = e.Message;
-            }
-            return strValue;
-        }
     }
-
-    #region 签到请求body
-
-    public class Body_Genshin_Sign
-    {
-        public string act_id { get; set; }
-        public string region { get; set; }
-        public string uid { get; set; }
-        public Body_Genshin_Sign(string act_id, string region, string uid)
-        {
-            this.act_id = act_id;
-            this.region = region;
-            this.uid = uid;
-        }
-    }
-
-    #endregion
 
     #region 签到实体类
 
