@@ -57,8 +57,6 @@ namespace com.kougami.sign
         /// <returns></returns>
         public override QMEventHandlerTypes OnReceiveFriendMessage(QMPrivateMessageEventArgs e)
         {
-            if (!enable) return QMEventHandlerTypes.Continue;
-
             OnReceivePrivateMessage(e.RobotQQ, -1, e.FromQQ, e.Message);
 
             return QMEventHandlerTypes.Intercept;
@@ -71,8 +69,6 @@ namespace com.kougami.sign
         /// <returns></returns>
         public override QMEventHandlerTypes OnReceiveGroupTempMessage(QMGroupPrivateMessageEventArgs e)
         {
-            if (!enable) return QMEventHandlerTypes.Continue;
-
             OnReceivePrivateMessage(e.RobotQQ, e.FromGroup, e.FromQQ, e.Message);
 
             return QMEventHandlerTypes.Intercept;
@@ -84,13 +80,17 @@ namespace com.kougami.sign
             {
                 Config.Set("config.ini", "all", "robot", robotQQ.ToString());
                 enable = true;
-                SendPrivateMessage(robotQQ, fromGroup, fromGroup, "启动成功");
+                SendPrivateMessage(robotQQ, fromGroup, fromQQ, "启动成功");
             }
             else if (message == "关闭" && enable)
             {
                 Config.Set("config.ini", "all", "robot", "");
                 enable = false;
-                SendPrivateMessage(robotQQ, fromGroup, fromGroup, "关闭成功");
+                SendPrivateMessage(robotQQ, fromGroup, fromQQ, "关闭成功");
+            }
+            else if (!enable)
+            {
+                
             }
             else if (message == "原神签到")
             {

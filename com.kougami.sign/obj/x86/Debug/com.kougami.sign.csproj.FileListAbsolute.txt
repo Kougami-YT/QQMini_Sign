@@ -17,4 +17,3 @@ E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Newtonsoft.Json.dl
 E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\RestSharp.dll
 E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\Newtonsoft.Json.xml
 E:\Project C#\com.kougami.sign\com.kougami.sign\bin\x86\Debug\RestSharp.xml
-E:\Project C#\com.kougami.sign\com.kougami.sign\obj\x86\Debug\com.kougami.sign.csprojAssemblyReference.cache
