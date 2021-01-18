@@ -53,7 +53,7 @@ namespace com.kougami.sign
                     }
                     else
                     {
-                        result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + " 签到成功";
+                        result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + "\n原神米游社签到成功";
                         signinfo = Get_SignInfo(j, uid);
                         result += "\n累计签到 " + signinfo.data.total_sign_day + " 天";
                         Award award = Get_Award(j);
@@ -86,7 +86,7 @@ namespace com.kougami.sign
             {
                 return "签到失败！\n错误代码：" + info.retcode + "\n错误提示：" + info.message;
             }
-            result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + " 签到成功";
+            result += "[" + role.data.list[0].game_uid + "]" + role.data.list[0].nickname + "\n原神米游社签到成功";
 
             SignInfo signinfo = Get_SignInfo(cookie, uid);
             result += "\n累计签到 " + signinfo.data.total_sign_day + " 天";

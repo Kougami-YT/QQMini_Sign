@@ -46,31 +46,8 @@ namespace com.kougami.sign
         public override QMEventHandlerTypes OnReceiveGroupMessage(QMGroupMessageEventArgs e)
         {
             //QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, e.Message);
-            if (e.Message.Text == "启动" && !enable)
-            {
-                Config.Set("config.ini", "all", "robot", e.RobotQQ.Id.ToString());
-                enable = true;
-                QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, "启动成功");
-            }
-            if (e.Message.Text == "关闭" && enable)
-            {
-                Config.Set("config.ini", "all", "robot", "");
-                enable = false;
-                QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, "关闭成功");
-            }
-            else if (e.Message.Text.Contains("[@" + e.RobotQQ.Id.ToString() + "]") && enable)
-            {
-                //QMApi.SendGroupMessage(e.RobotQQ, e.FromGroup, Menu());
-            }
 
             return QMEventHandlerTypes.Intercept;    // 返回继续执行时, 后续的插件将会接收到此消息
-        }
-        
-        string Menu()
-        {
-            string result = "";
-
-            return result;
         }
 
         /// <summary>
@@ -103,7 +80,19 @@ namespace com.kougami.sign
 
         public void OnReceivePrivateMessage(long robotQQ, long fromGroup, long fromQQ, string message)
         {
-            if (message == "原神签到")
+            if (message == "启动" && !enable)
+            {
+                Config.Set("config.ini", "all", "robot", robotQQ.ToString());
+                enable = true;
+                SendPrivateMessage(robotQQ, fromGroup, fromGroup, "启动成功");
+            }
+            else if (message == "关闭" && enable)
+            {
+                Config.Set("config.ini", "all", "robot", "");
+                enable = false;
+                SendPrivateMessage(robotQQ, fromGroup, fromGroup, "关闭成功");
+            }
+            else if (message == "原神签到")
             {
                 SendPrivateMessage(robotQQ, fromGroup, fromQQ, "Cookie录入开始，请发送一条单独包含Cookie的消息（多账号可用 # 分割Cookie）\n输入none清除已录入数据");
                 Config.Set("genshin.ini", fromQQ.ToString(), "writing", "true");

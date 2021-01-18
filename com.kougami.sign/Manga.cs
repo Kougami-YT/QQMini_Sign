@@ -59,9 +59,9 @@ namespace com.kougami.sign
             if (sign_result.code == "0")
             {
                 info = GetSignInfo(cookie);
-                result += "[" + accountinfo.data.mid + "]" + accountinfo.data.uname + " bilibili漫画签到成功";
+                result += "[" + accountinfo.data.mid + "]" + accountinfo.data.uname + "\nbilibili漫画签到成功";
                 result += "\n连续签到 " + info.data.day_count + " 天";
-                result += "今日奖励：" + info.data.point_infos[(info.data.day_count % 7) - 1].title;
+                result += "\n今日奖励：" + info.data.point_infos[(info.data.day_count % 7) - 1].title;
             }
             else
             {
